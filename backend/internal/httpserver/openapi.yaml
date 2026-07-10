@@ -1,0 +1,142 @@
+openapi: 3.0.3
+info:
+  title: Timemachine Auto API
+  version: "1.0.0"
+  description: |
+    API-first backend for the «Машина времени» auto service: public catalog,
+    online booking, MAX messenger integration and admin mini-CRM for prices.
+servers:
+  - url: /api/v1
+    description: relative to the backend origin
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Service:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        category_id: { type: integer, format: int64 }
+        category_slug: { type: string }
+        name: { type: string }
+        description: { type: string }
+        price_cents: { type: integer }
+        price: { type: integer, description: "price in major units" }
+        currency: { type: string, example: RUB }
+        duration_minutes: { type: integer }
+        is_from_price: { type: boolean }
+        is_active: { type: boolean }
+    Envelope:
+      type: object
+      properties:
+        data: {}
+        meta: {}
+        error: {}
+
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses: { '200': { description: ok } }
+
+  /categories:
+    get: { summary: List service categories, responses: { '200': { description: ok } } }
+
+  /services:
+    get:
+      summary: List services (public shows only active)
+      parameters:
+        - { in: query, name: q, schema: { type: string } }
+        - { in: query, name: category, schema: { type: string } }
+        - { in: query, name: limit, schema: { type: integer, default: 100 } }
+        - { in: query, name: offset, schema: { type: integer, default: 0 } }
+      responses: { '200': { description: ok } }
+
+  /services/{id}:
+    get:
+      parameters: [ { in: path, name: id, required: true, schema: { type: integer } } ]
+      responses: { '200': { description: ok }, '404': { description: not found } }
+
+  /faq:
+    get: { summary: Published FAQ, responses: { '200': { description: ok } } }
+  /reviews:
+    get: { summary: Published reviews, responses: { '200': { description: ok } } }
+    post:
+      summary: Submit a review (awaiting moderation)
+      responses: { '201': { description: created } }
+
+  /appointments:
+    post:
+      summary: Create an appointment (online booking)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, phone, car_make, car_model]
+              properties:
+                name: { type: string }
+                phone: { type: string }
+                car_make: { type: string }
+                car_model: { type: string }
+                gov_number: { type: string }
+                vin: { type: string }
+                service_id: { type: integer }
+                comment: { type: string }
+      responses: { '201': { description: created } }
+
+  /leads:
+    post:
+      summary: Create a lead (site or MAX)
+      responses: { '201': { description: created } }
+
+  /max/webhook:
+    post:
+      summary: Inbound webhook from MAX (signature validated)
+      responses: { '200': { description: ok } }
+  /max/deeplink:
+    get:
+      summary: Bot deep link to start a chat in MAX
+      responses: { '200': { description: ok } }
+
+  /admin/login:
+    post:
+      summary: Admin login, returns JWT
+      responses: { '200': { description: token } }
+
+  /admin/services:
+    get: { summary: All services (incl. inactive), security: [ { bearerAuth: [] } ], responses: { '200': { description: ok } } }
+    post: { summary: Create service, security: [ { bearerAuth: [] } ], responses: { '201': { description: created } } }
+  /admin/services/{id}:
+    put: { summary: Update service, security: [ { bearerAuth: [] } ], responses: { '200': { description: ok } } }
+    delete: { summary: Archive service, security: [ { bearerAuth: [] } ], responses: { '204': { description: ok } } }
+
+  /admin/prices/template:
+    get: { summary: Download CSV template, responses: { '200': { description: csv } } }
+  /admin/prices/export:
+    get: { summary: Export prices CSV, responses: { '200': { description: csv } } }
+  /admin/prices/import:
+    post:
+      summary: Upload a price file (multipart) -> validated job with preview
+      security: [ { bearerAuth: [] } ]
+      responses: { '201': { description: job created } }
+  /admin/prices/jobs:
+    get: { summary: List import jobs, security: [ { bearerAuth: [] } ], responses: { '200': { description: ok } } }
+  /admin/prices/jobs/{id}/apply:
+    post: { summary: Apply a validated import job, security: [ { bearerAuth: [] } ], responses: { '200': { description: applied } } }
+
+  /admin/appointments:
+    get: { summary: List appointments, security: [ { bearerAuth: [] } ], responses: { '200': { description: ok } } }
+  /admin/leads:
+    get: { summary: List leads, security: [ { bearerAuth: [] } ], responses: { '200': { description: ok } } }
+  /admin/knowledge:
+    get: { summary: List knowledge items, security: [ { bearerAuth: [] } ], responses: { '200': { description: ok } } }
+    post: { summary: Upsert knowledge item, security: [ { bearerAuth: [] } ], responses: { '201': { description: created } } }
+
+security:
+  - bearerAuth: []

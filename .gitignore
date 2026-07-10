@@ -1,0 +1,8 @@
+build/
+node_modules/
+.env
+*.log
+.DS_Store
+backend/server
+backend/migrate
+dist/
