@@ -1,0 +1,29 @@
+backend:
+  name: git-gateway
+  branch: main
+local_backend: true
+media_folder: "frontend/public/images/uploads"
+public_folder: "/images/uploads"
+collections:
+  - name: "articles"
+    label: "Статьи"
+    folder: "frontend/content/articles"
+    create: true
+    slug: "{{slug}}"
+    extension: "mdx"
+    format: "frontmatter"
+    fields:
+      - { label: "Заголовок", name: "title", widget: "string" }
+      - { label: "Описание", name: "description", widget: "text" }
+      - { label: "Дата", name: "date", widget: "datetime" }
+      - label: "Категория"
+        name: "category"
+        widget: "select"
+        options:
+          - { label: "Здоровье и энергия", value: "health-energy" }
+          - { label: "Стиль", value: "style" }
+          - { label: "Форма и тело", value: "body-form" }
+          - { label: "Отношения и уверенность", value: "relationships-confidence" }
+      - { label: "Обложка", name: "coverImage", widget: "image" }
+      - { label: "Alt обложки", name: "coverImageAlt", widget: "string" }
+      - { label: "Текст", name: "body", widget: "markdown" }
