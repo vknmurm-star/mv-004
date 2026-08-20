@@ -1,0 +1,2 @@
+import { categories, getAllArticles, siteUrl } from '../lib/content'
+export default function sitemap(){return [{url:siteUrl,lastModified:new Date(),changeFrequency:'weekly',priority:1},...categories.map(c=>({url:`${siteUrl}/category/${c.slug}`,lastModified:new Date(),changeFrequency:'weekly',priority:.8})),...getAllArticles().map(a=>({url:`${siteUrl}/articles/${a.slug}`,lastModified:new Date(a.date),changeFrequency:'monthly',priority:.7}))]}

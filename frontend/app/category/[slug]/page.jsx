@@ -1,0 +1,7 @@
+import { notFound } from 'next/navigation'
+import ArticleCard from '../../../components/ArticleCard'
+import JsonLd from '../../../components/JsonLd'
+import { breadcrumbs, collectionJsonLd, getArticlesByCategory, getCategory, siteUrl } from '../../../lib/content'
+export function generateStaticParams(){return ['health-energy','style','body-form','relationships-confidence'].map(slug=>({slug}))}
+export async function generateMetadata({params}){const { slug } = await params;const cat=getCategory(slug);if(!cat)return {};return {title:cat.name,description:cat.description,alternates:{canonical:`/category/${cat.slug}`},openGraph:{title:cat.name,description:cat.description,url:`${siteUrl}/category/${cat.slug}`,type:'website'},twitter:{card:'summary_large_image',title:cat.name,description:cat.description}}}
+export default async function CategoryPage({params}){const { slug } = await params;const cat=getCategory(slug);if(!cat)notFound();const articles=getArticlesByCategory(cat.slug);return <main className="container py-14"><JsonLd data={collectionJsonLd(cat,articles)}/><JsonLd data={breadcrumbs([{name:'Главная',href:'/'},{name:cat.name,href:`/category/${cat.slug}`}])}/><span className="pill">рубрика</span><h1 className="display mt-4 text-5xl">{cat.name}</h1><p className="mt-4 max-w-2xl text-lg leading-8 text-[var(--muted)]">{cat.description}</p><div className="mt-10 grid gap-6 md:grid-cols-2">{articles.map(a=><ArticleCard key={a.slug} article={a}/>)}</div></main>}

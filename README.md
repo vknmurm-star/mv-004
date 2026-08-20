@@ -1,125 +1,124 @@
-# Машина времени — автомастерская (сайт + mini-CRM)
+# «На высоте» — контентный журнал для мужчин 40+
 
-Современный сайт-витрина с мини-CRM для автосервиса «Машина времени»:
-публичный каталог услуг и прайса, онлайн-запись, админ-панель управления
-услугами и ценами с импортом/экспортом CSV/XLSX, интеграция с мессенджером
-MAX (бот + ИИ-агент) и API-first бэкенд на Go.
+Next.js 16 App Router сайт-журнал о здоровье, стиле и самочувствии для мужчин 40+. Тон проекта: спокойный, уважительный, без покровительственности, «бро»-сленга и медицинских назначений.
+
+## Айдентика
+
+Основная выбранная палитра: **тёплый графит + медь + светлый песок**. Она выглядит маскулинно, но не мрачно: графит даёт собранность, медь — характер, песочный фон — воздух и редакционную мягкость.
+
+Альтернативы для будущего редизайна:
+
+1. **Тёмно-синий + горчичный + молочный** — более журнальный и деловой вариант.
+2. **Оливковый + сталь + тёплый серый** — спокойнее, ближе к outdoor/wellbeing.
+3. **Графит + медь + песок** — текущий вариант.
+
+Заголовочный шрифт: **Fraunces** — выразительный, зрелый, с характером, но без декоративности Cormorant Garamond.
 
 ## Технологии
-- **Backend:** Go 1.22, chi, pgx/v5 (pool), JWT, bcrypt
-- **DB:** PostgreSQL 16 (миграции на чистом SQL, golang-migrate-совместимые)
-- **Frontend:** React 18 + Vite (SPA, mobile-first, светлая/тёмная тема)
-- **Импорт прайса:** CSV + XLSX (excelize), предпросмотр, подсветка ошибок
-- **MAX:** интеграционный слой с проверкой подписи webhook, сухим запуском
-  (rule-based детерминированный бот + опциональный LLM RAG по базе знаний)
-- **Infra:** Docker, docker-compose
-- **API:** REST JSON, OpenAPI/Swagger (`/api/v1/openapi.yaml`)
+
+- Next.js 16, App Router
+- React 19
+- Tailwind CSS
+- MDX-статьи с frontmatter
+- Decap CMS по адресу `/admin`
+- JSON-LD: `Article`, `BreadcrumbList`, `CollectionPage`
+- `sitemap.xml` и `robots.txt` через App Router metadata routes
 
 ## Структура проекта
-```
-timemachine-auto/
-├─ backend/
-│  ├─ cmd/{server,migrate}/main.go
-│  ├─ internal/
-│  │  ├─ config/ apperror/ middleware/ httpserver/
-│  │  ├─ domain/         (category/auth/booking/lead/faq/knowledge/review/audit)
-│  │  ├─ priceimport/ aiagent/ integrations/max/ migrations/
-│  ├─ pkg/ (db webutil)
-│  ├─ go.mod / Dockerfile
-├─ frontend/             (React 18 + Vite, все страницы + админка)
-├─ deployments/docker-compose.yml
-├─ docs/                 (db-schema.md, max-scenarios.md)
-└─ .env.example
+
+```text
+frontend/
+├─ app/                    # App Router страницы, metadata, sitemap, robots
+│  ├─ articles/[slug]/     # Страница статьи
+│  ├─ category/[slug]/     # Страница рубрики
+│  ├─ globals.css          # Tailwind и дизайн-токены
+│  ├─ layout.jsx           # Общий layout, header/footer, базовые meta
+│  └─ page.jsx             # Главная
+├─ components/             # Карточки статей, JSON-LD, блок «Читайте также»
+├─ content/articles/       # Стартовые MDX-статьи
+├─ lib/content.js          # Чтение MDX, категории, JSON-LD helpers
+├─ public/admin/           # Decap CMS config и admin shell
+├─ public/images/articles/ # SVG-плейсхолдеры обложек
+├─ Dockerfile
+├─ next.config.mjs
+├─ package.json
+└─ postcss.config.mjs
 ```
 
-## Быстрый старт (Docker)
+## Категории и стартовый контент
+
+На старте добавлены 4 категории по 2 статьи:
+
+- **Здоровье и энергия** — сон, восстановление, профилактические чекапы без диагнозов.
+- **Стиль** — гардероб и уход за собой без «домохозяйской» подачи.
+- **Форма и тело** — тренировки 40+, осанка, подвижность.
+- **Отношения и уверенность** — карьера, семья, внутренний тон без клише о кризисе среднего возраста.
+
+Формат frontmatter статьи:
+
+```yaml
+title: "Заголовок"
+description: "Краткое описание для SEO и карточек"
+date: "2026-08-01"
+category: "health-energy"
+coverImage: "/images/articles/sleep-checkup.svg"
+coverImageAlt: "Описание изображения"
+```
+
+## Локальный запуск
+
 ```bash
-cp .env.example .env
-docker compose -f deployments/docker-compose.yml up --build
-```
-
-Чтобы всё поднимать одним `docker compose up`, создайте в корне симлинк или
-копию compose-файла; здесь compose лежит в `deployments/`.
-- Frontend: http://localhost:3000
-- API:      http://localhost:8080/api/v1/health
-- Админка:  http://localhost:3000/admin/login
-  (demo: `admin@timemachine.ru` / `admin12345`)
-
-compose поднимает Postgres, прогоняет `up`-миграции, затем бэкенд и фронт.
-
-## Локальная разработка (без Docker)
-```bash
-# БД
-docker run -d --name tm-pg -e POSTGRES_PASSWORD=timemachine -e POSTGRES_USER=timemachine \
-  -e POSTGRES_DB=timemachine -p 5432:5432 postgres:16-alpine
-
-# Бэкенд
-cd backend
-go mod tidy
-go run ./cmd/migrate -direction=up
-go run ./cmd/server     # :8080
-
-# Фронтенд (проксирует /api на :8080)
-cd ../frontend
+cd frontend
 npm install
-npm run dev            # :5173
+npm run dev
 ```
 
-## Управление прайсом (админка)
-1. /admin/prices/import → drag&drop CSV/XLSX.
-2. Предпросмотр: сколько добавлено/обновлено/пропущено/ошибок, строки с
-   ошибками подсвечиваются.
-3. «Подтвердить и применить» — атомарный import inside one transaction.
-4. Шаблон: «⬇ Шаблон CSV»; экспорт текущих → «⬇ Экспорт».
-5. Журнал импортов ниже на той же странице; детальные строки по job через
-   `GET /api/v1/admin/prices/jobs/{id}`.
-6. Ручное редактирование услуг — /admin/services.
+Сайт будет доступен на `http://localhost:3000`.
 
-CSV-формат (шаблон идёт в той же колонке):
+## Production build
+
+```bash
+cd frontend
+npm install
+npm run build
+npm run start
 ```
-category,name,description,price,currency,duration_minutes,is_from_price,is_active
-Тормозная система,Замена колодок (оси),Передние или задние работа за ось,3500,RUB,45,да,1
+
+## Docker
+
+```bash
+cd frontend
+docker build -t na-vysote .
+docker run --rm -p 3000:3000 -e NEXT_PUBLIC_SITE_URL=http://localhost:3000 na-vysote
 ```
-Массовое обновление идемпотентно по (category + name). Цена хранится в копейках;
-парсер нормализует «1 500 ₽», «от 1500», «1500.00».
 
-## MAX-интеграция и AI-агент
-Подробно в `docs/max-scenarios.md`. Кратко:
-- `POST /api/v1/max/webhook` — входящий вебхук с проверкой подписи.
-- `MAX_ENABLED=false` → сообщения только логируются (dry-run), удобно для
-  разработки.
-- Бот: rule-based + опциональный LLM-RAG по `knowledge_items`
-  (`AI_ENABLED=true`, `AI_PROVIDER=openai|stub`).
-- База знаний редактируется в /admin/knowledge.
-- Дисклеймер о диагнозе/цене добавляется ко всем AI-ответам.
+## Decap CMS
 
-## API
-OpenAPI документ: `GET /api/v1/openapi.yaml`. Основные эндпоинты:
+Админка доступна по адресу:
 
-Публичные: `GET /categories`, `/services`, `/services/{id}`, `/faq`,
-`/reviews`; `POST /appointments`, `/leads`, `/reviews`; `GET /max/deeplink`,
-`POST /max/webhook`.
+```text
+/admin
+```
 
-Админ (Bearer JWT): `/admin/login`, `/admin/services` (CRUD),
-`/admin/prices/{template,export,import,jobs,jobs/{id}/apply}`,
-`/admin/appointments` (list/patch), `/admin/leads`, `/admin/faq`,
-`/admin/knowledge`, `/admin/reviews`, `/admin/audit`.
+Для локальной работы с Decap CMS можно запустить local backend:
 
-## Безопасность
-- Авторизация админа через JWT (HMAC, бинарник из `cmd/server`).
-- Секреты — переменные окружения (см. `.env.example`); в production
-  `JWT_SECRET` и `MAX_WEBHOOK_SECRET` обязательны.
-- CORS allow-list из `CORS_ALLOWED_ORIGINS`.
-- Rate limiting: публичные формы — на IP/час; API — на IP/мин.
-- Secure headers + HSTS + CSP в production.
-- Валидация всех DTO на уровне доменных репозиториев (`Validate()`).
+```bash
+cd frontend
+npx decap-server
+npm run dev
+```
 
-## Расширяемость
-- Каждый домен — отдельный пакет с `Repo` и `Validation`.
-- Внешние интеграции (MAX, LLM) за интерфейсами; замена заглушек реальными
-  HTTP-клиентами не требует правок хендлеров.
-- `seatStore` (состояние чата) заменяется таблицей `sessions`.
-- Добавление нового источника лидов = новый `lead.Channel` + хендлер.
+Конфигурация Decap CMS лежит в `frontend/public/admin/config.yml`. Новые статьи сохраняются в `frontend/content/articles` как `.mdx` с frontmatter.
 
-## Demo-креды
-- admin@timemachine.ru / admin12345 — сменить до продакшена!
+## SEO/GEO
+
+- На главной, рубриках и статьях настроены уникальные title/description/canonical/OG/Twitter metadata.
+- Для статей генерируется JSON-LD `Article`.
+- Для рубрик и главной генерируется JSON-LD `CollectionPage`.
+- Для навигационной цепочки генерируется `BreadcrumbList`.
+- `robots.txt` разрешает обычных поисковых роботов и GEO-краулеров: `GPTBot`, `PerplexityBot`, `ClaudeBot`.
+- `sitemap.xml` включает главную, категории и все статьи.
+
+## Изображения
+
+Пока используются SVG-плейсхолдеры в `frontend/public/images/articles`. Реальные фотографии можно заменить вручную, обновив `coverImage` и `coverImageAlt` в frontmatter статьи.
