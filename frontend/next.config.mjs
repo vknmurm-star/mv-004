@@ -1,5 +1,5 @@
 const nextConfig = {
-  pageExtensions: ['js', 'jsx', 'mdx'],
+  pageExtensions: ['js', 'jsx', 'md'],
   images: { unoptimized: true },
 }
 export default nextConfig

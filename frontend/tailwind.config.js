@@ -1,1 +1,1 @@
-module.exports = { content: ['./app/**/*.{js,jsx,mdx}', './components/**/*.{js,jsx}', './content/**/*.{mdx}'], theme: { extend: {} }, plugins: [] }
+module.exports = { content: ['./app/**/*.{js,jsx,md}', './components/**/*.{js,jsx}', './content/**/*.{md}'], theme: { extend: {} }, plugins: [] }
