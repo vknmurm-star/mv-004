@@ -5,12 +5,12 @@ backend:
   base_url: https://men40.an51.su
   auth_endpoint: api/auth
 local_backend: true
-media_folder: "public/images/articles"
+media_folder: "frontend/public/images/articles"
 public_folder: "/images/articles"
 collections:
   - name: "articles"
     label: "Статьи"
-    folder: "content/articles/"
+    folder: "frontend/content/articles/"
     create: true
     slug: "{{slug}}"
     extension: "md"
