@@ -27,7 +27,7 @@ export const metadata = {
     images: ['/images/articles/men-001.jpg'],
   },
   verification: {
-    google: 'GOOGLE_SEARCH_CONSOLE_VERIFICATION_CODE',
+    google: 'jYc47eoIqDRwS-9o-00BHj3gmiPZbrRKDXE05FXM8m4',
     yandex: 'YANDEX_WEBMASTER_VERIFICATION_CODE',
   },
   robots: { index: true, follow: true },
