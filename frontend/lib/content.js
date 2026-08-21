@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import matter from 'gray-matter'
 
-export const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://na-vysote.example.com'
+export const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://men40.an51.su'
 export const categories = [
   { slug: 'health-energy', name: 'Здоровье и энергия', description: 'Сон, восстановление, профилактические чекапы и бережная энергия без диагнозов.' },
   { slug: 'style', name: 'Стиль', description: 'Гардероб, уход и визуальная собранность без суеты и подростковых трендов.' },
@@ -27,6 +27,9 @@ export function articleJsonLd(article) {
     '@type': 'Article',
     headline: article.title,
     description: article.description,
+    url: absolute(`/articles/${article.slug}`),
+    inLanguage: 'ru-RU',
+    articleSection: getCategory(article.category)?.name,
     datePublished: article.date,
     dateModified: article.date,
     image: absolute(article.coverImage),
@@ -40,7 +43,7 @@ export function articleJsonLd(article) {
   }
 }
 export function breadcrumbs(items){return {'@context':'https://schema.org','@type':'BreadcrumbList', itemListElement:items.map((it,i)=>({'@type':'ListItem', position:i+1, name:it.name, item:absolute(it.href)}))}}
-export function collectionJsonLd(category, articles){return {'@context':'https://schema.org','@type':'CollectionPage', name:category?.name || 'Все статьи', description:category?.description || 'Журнал На высоте', hasPart:articles.map(a=>({'@type':'Article', headline:a.title, url:absolute(`/articles/${a.slug}`)}))}}
+export function collectionJsonLd(category, articles){return {'@context':'https://schema.org','@type':'CollectionPage', name:category?.name || 'Все статьи', description:category?.description || 'Журнал На высоте', url:absolute(category?`/category/${category.slug}`:'/'), inLanguage:'ru-RU', hasPart:articles.map(a=>({'@type':'Article', headline:a.title, description:a.description, image:absolute(a.coverImage), url:absolute(`/articles/${a.slug}`)}))}}
 export function renderMarkdown(source, currentSlug, category){
   const escape = (s)=>s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')
   const inline = (s)=>escape(s).replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2">$1</a>')
