@@ -1,0 +1,10 @@
+/* Styles for the article rendered in Decap CMS's right Preview pane. */
+img[src*="images/articles/"] {
+  display: block;
+  width: 100% !important;
+  max-width: 1200px !important;
+  height: auto !important;
+  max-height: 400px !important;
+  object-fit: cover !important;
+  object-position: center !important;
+}
