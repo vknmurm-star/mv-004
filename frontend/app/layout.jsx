@@ -28,7 +28,7 @@ export const metadata = {
   },
   verification: {
     google: 'jYc47eoIqDRwS-9o-00BHj3gmiPZbrRKDXE05FXM8m4',
-    yandex: '59c1b8df1d4b5313',
+    yandex: 'fbdecad9202e2a7b',
   },
   robots: { index: true, follow: true },
 }
