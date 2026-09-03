@@ -4,7 +4,7 @@ import { Fraunces } from 'next/font/google'
 import { categories } from '../lib/content'
 
 const fraunces = Fraunces({ subsets: ['latin', 'cyrillic'], variable: '--font-display', display: 'swap' })
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://men40.an51.su'
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://men.an51.su'
 
 export const metadata = {
   metadataBase: new URL(siteUrl),

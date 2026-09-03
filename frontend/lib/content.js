@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import matter from 'gray-matter'
 
-export const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://men40.an51.su'
+export const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://men.an51.su'
 export const categories = [
   { slug: 'health-energy', name: 'Здоровье и энергия', description: 'Сон, восстановление, профилактические чекапы и бережная энергия без диагнозов.' },
   { slug: 'style', name: 'Стиль', description: 'Гардероб, уход и визуальная собранность без суеты и подростковых трендов.' },

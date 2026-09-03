@@ -2,7 +2,7 @@ backend:
   name: github
   repo: vknmurm-star/mv-004
   branch: main
-  base_url: https://men40.an51.su
+  base_url: https://men.an51.su
   auth_endpoint: api/auth
 local_backend: true
 media_folder: "frontend/public/images/articles"
